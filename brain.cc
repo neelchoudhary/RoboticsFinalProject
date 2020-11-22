@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 	int turnTime = 0;
 
 	int i = 5;
-	// 0 = forward, 1 = left, 2 = right, 3 = prepare for intersection, 4 = start spin, 5 = stop, 6 = TURN left, 7 = TURN right
+	// 0 = forward, 1 = left, 2 = right, 3 = prepare for intersection, 4 = start spin, 5 = stop, 6 = TURN left, 7 = TURN right, 8 = GO straight, 9 = AT GOAL.
 	int turnDir = 0;
 	while (true) {
 		std::array<double, 5> sensorReadings = read_all();
@@ -91,6 +91,11 @@ int main(int argc, char* argv[]) {
 		lineReadings[i] = lineReading;
 		
 		if (turnDir == 0) {
+			if (sonarReading < 7) {
+				cout << "WE FOUND THE GOAL!" << endl;
+				stop();
+				turnDir = 9;
+			}
 			if (lineReading == 0 && rightLineReading != 0) {
 				// cout << "Move!" << endl;
 				tank_drive(moveSpeed, moveSpeed);
@@ -152,7 +157,7 @@ int main(int argc, char* argv[]) {
 				rightPath = true;
 			}
 			if (abs(angleDiff(startSpinZ, z_pos)) < 15 && lineReading == 0) {
-				// there is a path continueing forward
+				// there is a path continuing forward
 				// cout << "FORWARD " << to_string(abs(angleDiff(startSpinZ, z_pos))) << endl;
 				forwardPath = true;
 			}
@@ -260,6 +265,17 @@ int main(int argc, char* argv[]) {
 				turnDir = 0;
 			}
 			turnTime += 1;
+		} else if (turnDir == 8) {
+			tank_drive(turnSpeed, turnSpeed);
+			if (turnTime > 15) {
+				cout << "Past intersection, continuing to go straight" << endl;
+				turnDir = 15;
+			}
+			turnTime += 1;
+		} else if (turnDir == 9) {
+			stop();
+			// do something celebratory??
+			break;
 		}
 
 		if (i >= 980) {
@@ -269,5 +285,7 @@ int main(int argc, char* argv[]) {
 		}
 		sleep(0.05);
 	}
+
+	cout << "Program ended." << endl;
 }
 
