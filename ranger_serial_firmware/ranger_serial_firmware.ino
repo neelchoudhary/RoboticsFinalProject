@@ -47,7 +47,7 @@ void setup()
 void loop()
 {
 
-  Serial.println(String(line_sensor.readSensors()) + ":" + String(line_sensor2.readSensors()) + ":" + String(gyro_sensor.getAngleX()) + ":" + String(gyro_sensor.getAngleY()) + ":" + String(gyro_sensor.getAngleZ()) + ":");
+  Serial.println(String(line_sensor.readSensors()) + ":" + String(line_sensor2.readSensors()) + ":" + String(sonar_sensor.distanceCm())  + ":" + String(gyro_sensor.getAngleZ()) + ":");
 
   poll_serial();
   
