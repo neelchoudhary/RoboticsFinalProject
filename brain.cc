@@ -49,6 +49,7 @@ int main(int argc, char* argv[]) {
 	create_robot_connection("/dev/ttyUSB0");
 	sleep(2);
 
+	// lineReadings
 	double lineReadings[1000];
 	lineReadings[0] = 0;
 	lineReadings[1] = 0;
@@ -56,11 +57,19 @@ int main(int argc, char* argv[]) {
 	lineReadings[3] = 0;
 	lineReadings[4] = 0;
 
+	// spinning stuff
 	double startSpinZ = 0;
-	double spinTime = 0;
+	int spinTime = 0;
+
+	// valid paths
+	bool leftPath = false;
+	bool rightPath = false;
+	bool forwardPath = false;
+
+	int turnTime = 0;
 
 	int i = 5;
-	// 0 = forward, 1 = right, 2 = left, 3 = prepare for intersection, 4 = start spin, 5 = stop
+	// 0 = forward, 1 = right, 2 = left, 3 = prepare for intersection, 4 = start spin, 5 = stop, 6 = TURN right, 7 = TURN left
 	int turnDir = 0;
 	while (true) {
 		std::array<double, 5> sensorReadings = read_all();
@@ -124,33 +133,64 @@ int main(int argc, char* argv[]) {
 		} else if (turnDir == 3) {
 			tank_drive(80, 80);
 			if (rightLineReading == 3) {
-				cout << "AHHHHHH" << endl;
 				turnDir = 4;
 			}
 		} else if (turnDir == 4) {
 			tank_drive(-turnSpeed, turnSpeed);
 			spinTime += 1;
-			// if (abs(startSpinZ - z_pos) < 5 && spinTime >= 15) {
-			// 	turnDir = 5;
-			// }
-			// cout << to_string(abs(angleDiff(startSpinZ + 90, z_pos))) << endl;
 			if (abs(angleDiff(startSpinZ, z_pos)) < 15 && spinTime >= 15) {
 				turnDir = 5;
 			}
 			if (abs(angleDiff(startSpinZ + 90, z_pos)) < 15 && lineReading == 0) {
 				// there is a path to the right
-				cout << "RIGHT" << to_string(abs(angleDiff(startSpinZ + 90, z_pos))) << endl;
+				cout << "RIGHT " << to_string(abs(angleDiff(startSpinZ + 90, z_pos))) << endl;
+				rightPath = true;
 			}
 			if (abs(angleDiff(startSpinZ, z_pos)) < 15 && lineReading == 0) {
 				// there is a path continueing forward
-				cout << "FORWARD" << to_string(abs(angleDiff(startSpinZ, z_pos))) << endl;
+				cout << "FORWARD " << to_string(abs(angleDiff(startSpinZ, z_pos))) << endl;
+				forwardPath = true;
 			}
 			if (abs(angleDiff(startSpinZ + 270, z_pos)) < 15 && lineReading == 0) {
 				// there is a path to the left
-				cout << "LEFT" << to_string(abs(angleDiff(startSpinZ + 270, z_pos))) << endl;
+				cout << "LEFT " << to_string(abs(angleDiff(startSpinZ + 270, z_pos))) << endl;
+				leftPath = true;
 			}
 		} else if (turnDir == 5) {
 			tank_drive(0,0);
+			if (rightPath) {
+				turnDir = 7;
+				turnTime = 0;
+				bool leftPath = false;
+				bool rightPath = false;
+				bool forwardPath = false;				
+			} else if (leftPath) {
+				turnDir = 6;
+				turnTime = 0;
+				bool leftPath = false;
+				bool rightPath = false;
+				bool forwardPath = false;				
+			} else if (forwardPath) {
+				turnDir = 0;
+				turnTime = 0;
+				bool leftPath = false;
+				bool rightPath = false;
+				bool forwardPath = false;				
+			}
+		} else if (turnDir == 6) {
+			tank_drive(turnSpeed, -turnSpeed);
+			if (turnTime > 15 && lineReading == 0) {
+				// there is a path to the left
+				turnDir = 0;
+			}
+			turnTime += 1;
+		} else if (turnDir == 7) {
+			tank_drive(-turnSpeed, turnSpeed);
+			if (turnTime > 15 && lineReading == 0) {
+				// there is a path to the right
+				turnDir = 0;
+			}
+			turnTime += 1;
 		}
 
 		if (i >= 980) {
