@@ -2,12 +2,46 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <iostream>
+#include <math.h>
 #include "viz.hh"
 
 #include "ranger-library.hh"
 
 using namespace std;
 
+
+// // Add an angle in the clockwise direction.
+// double angleAdd(double currAngle, double additionAngle) {
+// 	if (newAngle > 180) {
+// 		newAngle = newAngle - 360;
+// 	}
+// 	if (currAngle <= -180) {
+// 		currAngle = currAngle + 360;
+// 	}
+// 	double newAngle = (currAngle + additionAngle) % 360;
+// 	return newAngle;
+// }
+
+double angleDiff(double angle1, double angle2) {
+	if (angle1 < 0) {
+		angle1 += 360;
+	}
+	if (angle2 < 0) {
+		angle2 += 360;
+	}
+
+    double diff = fmod(angle1 - angle2, 360);
+
+    if (diff < -180) {
+        diff += 360;
+    }
+
+    if (diff > 180) {
+        diff -= 360;
+    }
+
+    return diff;
+}
 
 int main(int argc, char* argv[]) {
 	// int status =  viz_run(argc, argv);
@@ -26,16 +60,16 @@ int main(int argc, char* argv[]) {
 	double spinTime = 0;
 
 	int i = 5;
-	// 0 = forward, 1 = right, 2 = left, 3 = spin
+	// 0 = forward, 1 = right, 2 = left, 3 = prepare for intersection, 4 = start spin, 5 = stop
 	int turnDir = 0;
 	while (true) {
 		std::array<double, 5> sensorReadings = read_all();
 		double lineReading = sensorReadings[0];
 		double rightLineReading = sensorReadings[1];
 		double z_pos = sensorReadings[4];
-		cout << "Line Sensor: " + to_string(lineReading) << endl;
-		cout << "Right sensor: " + to_string(rightLineReading) << endl;
-		cout << "z sensor: " + to_string(z_pos) << endl;
+		// cout << "Line Sensor: " + to_string(lineReading) << endl;
+		// cout << "Right sensor: " + to_string(rightLineReading) << endl;
+		// cout << "z sensor: " + to_string(z_pos) << endl;
 
 		int moveSpeed = 120;
 		int turnSpeed = 150;
@@ -43,7 +77,7 @@ int main(int argc, char* argv[]) {
 		
 		if (turnDir == 0) {
 			if (lineReading == 0 && rightLineReading != 0) {
-				cout << "Move!" << endl;
+				// cout << "Move!" << endl;
 				tank_drive(moveSpeed, moveSpeed);
 			} else if (rightLineReading == 0) {
 				// turn right at intersection
@@ -51,7 +85,7 @@ int main(int argc, char* argv[]) {
 				turnDir = 3;
 				spinTime = 0;
 				startSpinZ = z_pos;
-				cout << "Intersection!" << endl;
+				// cout << "Intersection!" << endl;
 				// turnDir = 2;
 				// cout << "Turn right" << endl;
 			} else if (lineReading == 1) {
@@ -88,15 +122,34 @@ int main(int argc, char* argv[]) {
 				turnDir = 0;
 			}
 		} else if (turnDir == 3) {
-			tank_drive(-turnSpeed, turnSpeed);
-			spinTime += 1;
-			if (abs(startSpinZ - z_pos) < 5 && spinTime >= 15) {
+			tank_drive(80, 80);
+			if (rightLineReading == 3) {
+				cout << "AHHHHHH" << endl;
 				turnDir = 4;
 			}
-			if (abs(180 - abs(startSpinZ - z_pos)) < 5 && lineReading == 0) {
-				// there is a path to the right
-			}
 		} else if (turnDir == 4) {
+			tank_drive(-turnSpeed, turnSpeed);
+			spinTime += 1;
+			// if (abs(startSpinZ - z_pos) < 5 && spinTime >= 15) {
+			// 	turnDir = 5;
+			// }
+			// cout << to_string(abs(angleDiff(startSpinZ + 90, z_pos))) << endl;
+			if (abs(angleDiff(startSpinZ, z_pos)) < 15 && spinTime >= 15) {
+				turnDir = 5;
+			}
+			if (abs(angleDiff(startSpinZ + 90, z_pos)) < 15 && lineReading == 0) {
+				// there is a path to the right
+				cout << "RIGHT" << to_string(abs(angleDiff(startSpinZ + 90, z_pos))) << endl;
+			}
+			if (abs(angleDiff(startSpinZ, z_pos)) < 15 && lineReading == 0) {
+				// there is a path continueing forward
+				cout << "FORWARD" << to_string(abs(angleDiff(startSpinZ, z_pos))) << endl;
+			}
+			if (abs(angleDiff(startSpinZ + 270, z_pos)) < 15 && lineReading == 0) {
+				// there is a path to the left
+				cout << "LEFT" << to_string(abs(angleDiff(startSpinZ + 270, z_pos))) << endl;
+			}
+		} else if (turnDir == 5) {
 			tank_drive(0,0);
 		}
 
