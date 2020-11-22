@@ -64,19 +64,23 @@ int main(int argc, char* argv[]) {
 	lineReadings[4] = 0;
 
 	int i = 5;
-	// 0 = forward, 1 = right, 2 = left
+	// 0 = forward, 1 = right, 2 = left, 3 = spin
 	int turnDir = 0;
 	while (true) {
 		std::array<double, 5> sensorReadings = read_all();
 		double lineReading = sensorReadings[0];
 		double rightLineReading = sensorReadings[1];
+		double z_pos = sensorReadings[4];
 		cout << "Line Sensor: " + to_string(lineReading) << endl;
 		cout << "Right sensor: " + to_string(rightLineReading) << endl;
-
+		cout << "z sensor: " + to_string(z_pos) << endl;
 
 		int moveSpeed = 120;
 		int turnSpeed = 175;
 		lineReadings[i] = lineReading;
+		
+		double startSpinZ = 0;
+		double spinTime = 0;
 		
 		if (turnDir == 0) {
 			if (lineReading == 0 && rightLineReading != 0) {
@@ -84,9 +88,13 @@ int main(int argc, char* argv[]) {
 				tank_drive(moveSpeed, moveSpeed);
 			} else if (rightLineReading == 0) {
 				// turn right at intersection
+				// actually we spinny
+				turnDir = 3;
+				spinTime = 0;
+				startSpinZ = z_pos;
 				cout << "Intersection!" << endl;
-				turnDir = 2;
-				cout << "Turn right" << endl;
+				// turnDir = 2;
+				// cout << "Turn right" << endl;
 			} else if (lineReading == 1) {
 				// turn right
 				turnDir = 1;
@@ -120,9 +128,16 @@ int main(int argc, char* argv[]) {
 			if (lineReading == 0) {
 				turnDir = 0;
 			}
+		} else if (turnDir == 3) {
+			tank_drive(0, turnSpeed);
+			spinTime += 1;
+			if (abs(startSpinZ - z_pos) < 3 && spinTime 15) {
+				turnDir = 4;
+			}
+		} else if (turnDir == 4) {
+			tank_drive(0,0);
 		}
 
-		// line_following(lineReading, turnDir, lineReadings, i);
 		if (i >= 980) {
 			i = 5;
 		} else {
