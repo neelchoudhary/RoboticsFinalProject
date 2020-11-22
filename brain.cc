@@ -8,47 +8,6 @@
 
 using namespace std;
 
-void line_following(double lineReading, int turnDir, double lineReadings[1000], int i) {
-	int moveSpeed = 120;
-	int turnSpeed = 200;
-	lineReadings[i] = lineReading;
-	
-	if (turnDir == 0) {
-		if (lineReading == 0) {
-			tank_drive(moveSpeed, moveSpeed);
-		} else if (lineReading == 1) {
-			// turn right
-			turnDir = 1;
-			// tank_drive(moveSpeed, 0);
-		} else if (lineReading == 2) {
-			// turn left
-			turnDir = 2;
-			if (i > 5) {
-				if (lineReadings[i-1] == 1 || lineReadings[i-2] == 1 || lineReadings[i-3] == 1 || lineReadings[i-4] == 1 || lineReadings[i-5] == 1) {
-					// tank_drive(moveSpeed, 0);
-					turnDir = 1;
-				} else if (lineReadings[i-1] == 2 || lineReadings[i-2] == 2 || lineReadings[i-3] == 2 || lineReadings[i-4] == 2 || lineReadings[i-5] == 2) {
-					// tank_drive(0, moveSpeed);
-					turnDir = 2;
-				} else {
-					stop();
-				}
-			} else {
-				stop();
-			}
-		}
-	} else if (turnDir == 1) {
-		tank_drive(moveSpeed, 0);
-		if (lineReading == 0) {
-			turnDir = 0;
-		}
-	} else if (turnDir == 2) {
-		tank_drive(0, moveSpeed);
-		if (lineReading == 0) {
-			turnDir = 0;
-		}
-	}
-}
 
 int main(int argc, char* argv[]) {
 	// int status =  viz_run(argc, argv);
@@ -74,6 +33,10 @@ int main(int argc, char* argv[]) {
 		cout << "Line Sensor: " + to_string(lineReading) << endl;
 		cout << "Right sensor: " + to_string(rightLineReading) << endl;
 		cout << "z sensor: " + to_string(z_pos) << endl;
+		cout << "2 sensor: " + to_string(sensorReadings[2]) << endl;
+		cout << "3 sensor: " + to_string(sensorReadings[3]) << endl;
+		cout << "4 sensor: " + to_string(sensorReadings[4]) << endl;
+
 
 		int moveSpeed = 120;
 		int turnSpeed = 175;
@@ -129,9 +92,9 @@ int main(int argc, char* argv[]) {
 				turnDir = 0;
 			}
 		} else if (turnDir == 3) {
-			tank_drive(0, turnSpeed);
+			tank_drive(-turnSpeed, turnSpeed);
 			spinTime += 1;
-			if (abs(startSpinZ - z_pos) < 3 && spinTime 15) {
+			if (abs(startSpinZ - z_pos) < 3 && spinTime >= 15) {
 				turnDir = 4;
 			}
 		} else if (turnDir == 4) {
