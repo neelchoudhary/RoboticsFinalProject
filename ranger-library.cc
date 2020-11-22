@@ -172,7 +172,6 @@ std::array<double, 5> read_all() {
 	double token;
   
   std::array<double, 5> sensorReadings;
-	// double sensorReadings[5];
 	int sensorCount = 0;
 	while ((pos = sensorReading.find(":")) != string::npos) {
 			token = stod(sensorReading.substr(0, pos));
@@ -181,7 +180,6 @@ std::array<double, 5> read_all() {
 			sensorReading.erase(0, pos + 1);
 	}
   return sensorReadings;
-  // return stod(read_serial());
 }
 
 std::string read_serial() {
