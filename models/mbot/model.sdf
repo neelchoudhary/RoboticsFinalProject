@@ -1,0 +1,130 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <model name="mainboard">
+    <link name="boarder">
+        <pose>0.0 0.0 0.24 0.0 0.0 0.0</pose>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>.2 .12 .04</size>
+            </box>
+          </geometry>
+        </collision>
+        
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.2 .12 .04</size>
+            </box>
+          </geometry>
+           <material>
+             <ambient>0.46 0.46 0.46 1.0</ambient>
+             <diffuse>0.46 0.46 0.46 1.0</diffuse>
+             <specular>0.46 0.46 0.46 1.0</specular>
+             <emissive>0.46 0.46 0.46 1.0</emissive>
+           </material>
+        </visual>
+      </link>
+      
+    <link name="boardleg_fl">
+        <pose>-0.08 0.05 0.2 0.0 0.0 0.0</pose>
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.04</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.04</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="leg_fl_joint" type="fixed">
+        <child>boardleg_fl</child>
+        <parent>boarder</parent>
+      </joint>
+      
+      <link name="boardleg_fr">
+        <pose>-0.08 -0.05 0.2 0.0 0.0 0.0</pose>
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.04</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.04</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="leg_fr_joint" type="fixed">
+        <child>boardleg_fr</child>
+        <parent>boarder</parent>
+      </joint>
+      
+      <link name="boardleg_bl">
+        <pose>0.08 0.05 0.2 0.0 0.0 0.0</pose>
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.04</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.04</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="leg_bl_joint" type="fixed">
+        <child>boardleg_bl</child>
+        <parent>boarder</parent>
+      </joint>
+      
+      <link name="boardleg_br">
+        <pose>0.08 -0.05 0.2 0.0 0.0 0.0</pose>
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.04</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>.005</radius>
+              <length>.04</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="leg_br_joint" type="fixed">
+        <child>boardleg_br</child>
+        <parent>boarder</parent>
+      </joint>
+    
+  </model>
+</sdf>
