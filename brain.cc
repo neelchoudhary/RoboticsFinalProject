@@ -22,6 +22,9 @@ int main(int argc, char* argv[]) {
 	lineReadings[3] = 0;
 	lineReadings[4] = 0;
 
+	double startSpinZ = 0;
+	double spinTime = 0;
+
 	int i = 5;
 	// 0 = forward, 1 = right, 2 = left, 3 = spin
 	int turnDir = 0;
@@ -33,17 +36,10 @@ int main(int argc, char* argv[]) {
 		cout << "Line Sensor: " + to_string(lineReading) << endl;
 		cout << "Right sensor: " + to_string(rightLineReading) << endl;
 		cout << "z sensor: " + to_string(z_pos) << endl;
-		cout << "2 sensor: " + to_string(sensorReadings[2]) << endl;
-		cout << "3 sensor: " + to_string(sensorReadings[3]) << endl;
-		cout << "4 sensor: " + to_string(sensorReadings[4]) << endl;
-
 
 		int moveSpeed = 120;
-		int turnSpeed = 120;
+		int turnSpeed = 150;
 		lineReadings[i] = lineReading;
-		
-		double startSpinZ = 0;
-		double spinTime = 0;
 		
 		if (turnDir == 0) {
 			if (lineReading == 0 && rightLineReading != 0) {
@@ -96,6 +92,9 @@ int main(int argc, char* argv[]) {
 			spinTime += 1;
 			if (abs(startSpinZ - z_pos) < 5 && spinTime >= 15) {
 				turnDir = 4;
+			}
+			if (abs(180 - abs(startSpinZ - z_pos)) < 5 && lineReading == 0) {
+				// there is a path to the right
 			}
 		} else if (turnDir == 4) {
 			tank_drive(0,0);
