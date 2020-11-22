@@ -3,5 +3,5 @@
 git pull
 cd ranger_serial_firmware
 make
-cd..
+cd ..
 ./run
