@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
 
 
 		int moveSpeed = 120;
-		int turnSpeed = 175;
+		int turnSpeed = 120;
 		lineReadings[i] = lineReading;
 		
 		double startSpinZ = 0;
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
 		} else if (turnDir == 3) {
 			tank_drive(-turnSpeed, turnSpeed);
 			spinTime += 1;
-			if (abs(startSpinZ - z_pos) < 3 && spinTime >= 15) {
+			if (abs(startSpinZ - z_pos) < 5 && spinTime >= 15) {
 				turnDir = 4;
 			}
 		} else if (turnDir == 4) {
