@@ -11,6 +11,7 @@ MeGyro gyro_sensor(1, 0x69);
 MeTemperature temperature_sensor(PORT_13);
 MeUltrasonicSensor sonar_sensor(9);
 MeLineFollower line_sensor(10);
+MeLineFollower line_sensor2(8);
 MeEncoderOnBoard right_motor(SLOT1);
 MeEncoderOnBoard left_motor(SLOT2);
 MeBuzzer buzzer;
@@ -46,7 +47,7 @@ void setup()
 void loop()
 {
 
-  Serial.println(String(line_sensor.readSensors()) + ":" + String(sonar_sensor.distanceCm()) + ":" + String(gyro_sensor.getAngleX()) + ":" + String(gyro_sensor.getAngleY()) + ":" + String(gyro_sensor.getAngleZ()));
+  Serial.println(String(line_sensor.readSensors()) + ":" + String(line_sensor2.readSensors()) + ":" + String(gyro_sensor.getAngleX()) + ":" + String(gyro_sensor.getAngleY()) + ":" + String(gyro_sensor.getAngleZ()));
 
   poll_serial();
   
