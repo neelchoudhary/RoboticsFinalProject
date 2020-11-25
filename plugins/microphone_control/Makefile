@@ -1,3 +1,4 @@
+
 LIB := libmicrophone_control_plugin.so
 
 all: $(LIB)

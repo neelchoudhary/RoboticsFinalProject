@@ -110,7 +110,7 @@ public:
                   << this->stat_sub->GetTopic() << std::endl;
 
         string pose_topic = "~/" + model_name + "/pose";
-        this->pose_pub = this->node->Advertise<msgs::PoseStamped>(pose_topic);
+        this->pose_pub = this->node->Advertise<msgs::PoseStamped>(pose_topic, 50);
         std::cerr << "Advertised pose" << std::endl;
 
         std::cerr << "tank control loaded" << std::endl;
@@ -122,8 +122,8 @@ public:
         int raw = msg->int_value();
         int xx = raw / 256 - 128;
         int yy = raw % 256 - 128;
-        double lvel = xx / 25.0;
-        double rvel = yy / 25.0;
+        double lvel = 3 * (xx / 25.0);
+        double rvel = 3 * (yy / 25.0);
 
         std::cerr << "Got vel cmd: " << lvel << "," << rvel << std::endl;
 
@@ -142,14 +142,14 @@ public:
         // pose (Pose)
         auto pose_msg = ps.mutable_pose();
 
-        // position (Vector3d)
+        // // position (Vector3d)
         auto pos = pose.Pos();
         auto pos_msg = pose_msg->mutable_position();
         pos_msg->set_x(pos.X());
         pos_msg->set_y(pos.Y());
         pos_msg->set_z(pos.Z());
 
-        // orientation (Quaternion)
+        // // orientation (Quaternion)
         auto ori = pose.Rot();
         auto ori_msg = pose_msg->mutable_orientation();
         ori_msg->set_x(ori.X());

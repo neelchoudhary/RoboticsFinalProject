@@ -15,9 +15,9 @@ link_libraries(${X11_LIBRARIES})
 include_directories(${X11_INCLUDE_DIR})
 
 # OpenCV
-#find_package(OpenCV REQUIRED)
-#include_directories(${OPENCV_INCLUDE_DIRS})
-#link_directories(${OPENCV_LIBRARY_DIRS})
+find_package(OpenCV REQUIRED)
+include_directories(${OPENCV_INCLUDE_DIRS})
+link_directories(${OPENCV_LIBRARY_DIRS})
 
 # Find Gazebo
 find_package(gazebo REQUIRED)
@@ -30,7 +30,7 @@ include_directories("/usr/include/libserial")
 link_directories("/usr/include/libserial")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
-add_executable(brain brain.cc viz.cc ranger-library.cc)
+add_executable(brain brain.cc viz.cc gz_robot.cc rg_robot.cc ranger-library.cc)
 TARGET_LINK_LIBRARIES(brain ${GTK3_LIBRARIES})
 TARGET_LINK_LIBRARIES(brain ${LIBSERIAL_LIBRARIES})
 target_link_libraries(brain ${GAZEBO_LIBRARIES})

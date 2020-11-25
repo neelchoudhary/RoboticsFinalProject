@@ -1,9 +1,11 @@
 <?xml version="1.0" ?>
 <%
   # Based on Gazebo example
+
   # Vehicle with rigid suspension and front steering
   # Consists of box chassis with 4 non-steerable wheels
   # SI units (length in meters)
+
   # Geometry
   chassis_dx   = 0.465
   chassis_dy   = 0.216
@@ -15,6 +17,7 @@
   wheel_y0     = chassis_dy*0.5 + wheel_width*0.6 + 0.010
   steer_limit  = 75 * Math::PI / 180.0
   caster_angle =  5 * Math::PI / 180.0
+
   front_wheel_locations = {
     "fl" => {:x0 => wheel_x0, :y0 => wheel_y0 },
     "fr" => {:x0 => wheel_x0, :y0 => -wheel_y0 },
@@ -23,11 +26,13 @@
     "rl" => {:x0 => -wheel_x0, :y0 => wheel_y0 },
     "rr" => {:x0 => -wheel_x0, :y0 => -wheel_y0 },
   }
+
   # inertia
   chassis_mass = 2.0
   chassis_ixx  = chassis_mass/12.0 * (chassis_dy**2 + chassis_dz**2)
   chassis_iyy  = chassis_mass/12.0 * (chassis_dz**2 + chassis_dx**2)
   chassis_izz  = chassis_mass/12.0 * (chassis_dx**2 + chassis_dy**2)
+
   # chassis c.g. offset from center of box
   chassis_cgx  = chassis_dx*0.1
   chassis_cgy  = 0

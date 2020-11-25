@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <algorithm>
 
@@ -77,6 +78,7 @@ public:
         if (xx < xmin) return xmin;
         return xx;
     }
+
 
     int
     make_mic_msg(int x, int y)

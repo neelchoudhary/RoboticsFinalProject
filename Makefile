@@ -1,21 +1,9 @@
-
-BIN := brain
-
-all: brain
-
-build/Makefile: Makefile CMakeLists.txt
-	mkdir -p build
-	(cd build && cmake ..)
-
-
-$(BIN): $(wildcard *.cc) build/Makefile
-	(cd build && make)
-	cp build/$(BIN) .
-
-prereqs:
-	sudo apt install libgtk-3-dev libcairo2-dev
+all:
+	(cd brain && make)
+	(cd plugins && make)
 
 clean:
-	rm -rf build $(BIN)
+	(cd brain && make clean)
+	(cd plugins && make clean)
 
-.PHONY: all clean prereqs
+.PHONY: all clean
