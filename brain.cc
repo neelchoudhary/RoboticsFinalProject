@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 		std::array<double, 5> sensorReadings = read_all();
 		double lineReading = sensorReadings[0];
 		double rightLineReading = sensorReadings[1];
-		double sonarReading = sensorReadings[1];
+		double sonarReading = sensorReadings[2];
 		double z_pos = sensorReadings[3];
 		// cout << "Line Sensor: " + to_string(lineReading) << endl;
 		// cout << "Right sensor: " + to_string(rightLineReading) << endl;
