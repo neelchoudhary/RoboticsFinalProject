@@ -212,19 +212,23 @@ GzRobot::get_line_status() {
         // return status like the mBot ranger
         if (leftfront && leftback && rightfront && rightback)
         {
-            return 3;
+            // return 3;
+            return 0;
         }
         else if (leftfront && leftback)
         {
-            return 1;
+            // return 1;
+            return 2;
         }
         else if (rightfront && rightback)
         {
-            return 2;
+            // return 2;
+            return 1;
         }
 
     }
-    return 0;
+    // return 0;
+    return 3;
 }
 
 int
@@ -240,7 +244,6 @@ GzRobot::get_line_status2() {
         int leftback = false;
         int rightfront = false;
         int rightback = false;
-        cout << "DOES THIS HAPPEN" << endl;
 
         // find dark lines
         if (left_front[0] < 100 && left_front[1] < 100 && left_front[2] < 100)
@@ -263,20 +266,23 @@ GzRobot::get_line_status2() {
         // return status like the mBot ranger
         if (leftfront && leftback && rightfront && rightback)
         {
-            return 3;
+            // return 3;
+            return 0;
         }
         else if (leftfront && leftback)
         {
-            return 1;
+            // return 1;
+            return 2;
         }
         else if (rightfront && rightback)
         {
-            return 2;
+            // return 2;
+            return 1;
         }
 
     }
-    cout << "FUCK" << endl;
-    return 0;
+    // return 0;
+    return 3;
 }
 
 

@@ -851,6 +851,12 @@
           <acceleration>0.060586 0.035683 -5.9924 0.132378 -0.452959 -0.007062</acceleration>
           <wrench>0.006059 0.003568 -0.59924 0 -0 0</wrench>
         </link>
+        <link name='tankbot::camera_sensor::link_2'>
+          <pose>-14.4653 0.058365 0.039993 0.000402 1.57001 0.011367</pose>
+          <velocity>4.4e-05 -0.000282 -0.005892 0.000296 -0.00043 -2.5e-05</velocity>
+          <acceleration>0.060586 0.035683 -5.9924 0.132378 -0.452959 -0.007062</acceleration>
+          <wrench>0.006059 0.003568 -0.59924 0 -0 0</wrench>
+        </link>
         <link name='tankbot::chain_l_up'>
           <pose>-14.657 0.196271 0.099994 -0.00032 4e-06 0.010965</pose>
           <velocity>-1.1e-05 -0.000291 -0.005871 3e-06 0.00021 -2.8e-05</velocity>
@@ -908,7 +914,7 @@
       </model>
       <model name='unit_box'>
         <pose>-14.2 0.06 0.000468 0 -0 6.5e-05</pose>
-        <scale>1 0.3 1</scale>
+        <scale>2 0.06 1</scale>
         <link name='link'>
           <pose>-14.2 0.06 0.000468 0 -0 6.5e-05</pose>
           <velocity>0 0 0 0 -0 0</velocity>
