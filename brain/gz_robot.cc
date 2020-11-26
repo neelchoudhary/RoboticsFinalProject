@@ -287,7 +287,7 @@ GzRobot::get_line_status2() {
 
 
 std::array<double, 5> 
-GzRobot::read_all() {
+GzRobot::read_all_sensors() {
     double lineStatus1 = (double)this->get_line_status();
     double lineStatus2 = (double)this->get_line_status2();
     double sonar = this->range;

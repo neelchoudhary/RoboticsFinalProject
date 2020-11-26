@@ -11,7 +11,7 @@
 class Robot {
   public:
     virtual ~Robot() = 0;
-    virtual std::array<double, 5> read_all() = 0;
+    virtual std::array<double, 5> read_all_sensors() = 0;
     virtual int get_line_status() = 0;
     virtual int get_line_status2() = 0;
     virtual double get_noise_sensor() = 0;
@@ -39,7 +39,7 @@ class GzRobot : public Robot {
     bool at_goal();
     void done();
 
-    std::array<double, 5> read_all();
+    std::array<double, 5> read_all_sensors();
     int get_line_status();
     int get_line_status2();
     int get_line_statusz();
@@ -71,7 +71,7 @@ class RgRobot : public Robot {
       RgRobot(int argc, char* argb[], void (*cb)(Robot*));
       ~RgRobot();
 
-      std::array<double, 5> read_all();
+      std::array<double, 5> read_all_sensors();
       int get_line_status();
       int get_line_status2();
       double get_noise_sensor();

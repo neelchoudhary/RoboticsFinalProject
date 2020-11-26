@@ -70,6 +70,14 @@ void move(Robot* robot, int leftSpeed, int rightSpeed) {
 		if (rightSpeed > 10) {
 			rightSpeed = 1;
 		}
+
+		if (leftSpeed < -10) {
+			leftSpeed = -1;
+		}
+
+		if (rightSpeed < -10) {
+			rightSpeed = -1;
+		}
 		robot->set_vel(leftSpeed, rightSpeed);
 	} else {
 		robot->set_vel(leftSpeed, rightSpeed);
@@ -85,11 +93,11 @@ int iterations = 0;
 void
 callback(Robot* robot)
 {
-	if (iterations < 5) {
-		iterations += 1;
-		return;
-	}
-	iterations += 1;
+	// if (iterations < 5) {
+	// 	iterations += 1;
+	// 	return;
+	// }
+	// iterations += 1;
 
     // cout << robot->get_line_status() << endl;
     //
@@ -102,18 +110,14 @@ callback(Robot* robot)
     // robot->set_vel(1, 1);
 
     // sleep(1);
-
-	std::array<double, 5> sensorReadings = robot->read_all();
+	std::array<double, 5> sensorReadings = robot->read_all_sensors();
 	double lineReading = sensorReadings[0];
 	double rightLineReading = sensorReadings[1];
-	// double sonarReading = sensorReadings[2];
-	double sonarReading = 400; // temp until we figure out gazebo sonar
+	double sonarReading = sensorReadings[2];
+	// double sonarReading = 400; // temp until we figure out gazebo sonar
 	double z_pos = sensorReadings[3];
-	cout << "Line Sensor: " + to_string(lineReading) << endl;
-	cout << "Right sensor: " + to_string(rightLineReading) << endl;
-	cout << "LEF2 sensor: " + to_string(robot->get_line_status()) << endl;
-	cout << "RIGH2 sensor: " + to_string(robot->get_line_status2()) << endl;
-	// RIGHT SENSOR IS NOT WORKING
+	// cout << "Line Sensor: " + to_string(lineReading) << endl;
+	// cout << "Right sensor: " + to_string(rightLineReading) << endl;
 	// cout << "Sonar sensor: " + to_string(sonarReading) << endl;
 	// cout << "z sensor: " + to_string(z_pos) << endl;
 
@@ -131,7 +135,7 @@ callback(Robot* robot)
 			turnDir = 9;
 		}
 		if (lineReading == 0 && rightLineReading != 0) {
-			cout << "Move!" << endl;
+			// cout << "Move!" << endl;
 			move(robot, moveSpeed, moveSpeed);
 		} else if (rightLineReading == 0) {
 			// we are at intersection
@@ -148,9 +152,9 @@ callback(Robot* robot)
 		} else {
 			if (i > 5) {
 				if (lineReadings[i-1] == 1 || lineReadings[i-2] == 1 || lineReadings[i-3] == 1 || lineReadings[i-4] == 1 || lineReadings[i-5] == 1) {
-					turnDir = 1;
-				} else if (lineReadings[i-1] == 2 || lineReadings[i-2] == 2 || lineReadings[i-3] == 2 || lineReadings[i-4] == 2 || lineReadings[i-5] == 2) {
 					turnDir = 2;
+				} else if (lineReadings[i-1] == 2 || lineReadings[i-2] == 2 || lineReadings[i-3] == 2 || lineReadings[i-4] == 2 || lineReadings[i-5] == 2) {
+					turnDir = 1;
 				} else {
 					stop(robot);
 				}
@@ -160,13 +164,13 @@ callback(Robot* robot)
 		}
 	} else if (turnDir == 1) {
 		// turning left
-		move(robot, turnSpeed, 0);
+		move(robot, 0, turnSpeed);
 		if (lineReading == 0) {
 			turnDir = 0;
 		}
 	} else if (turnDir == 2) {
 		// turning right
-		move(robot, 0, turnSpeed);
+		move(robot, turnSpeed, 0);
 		if (lineReading == 0) {
 			turnDir = 0;
 		}
@@ -284,7 +288,7 @@ callback(Robot* robot)
 		}
 		sonar_i = 0;
 	} else if (turnDir == 6) {
-		move(robot, turnSpeed, -turnSpeed);
+		move(robot, -turnSpeed, turnSpeed);
 		if (turnTime > 15 && lineReading == 0) {
 			cout << "Done turning left, Going straight again" << endl;
 			// there is a path to the left
@@ -292,7 +296,7 @@ callback(Robot* robot)
 		}
 		turnTime += 1;
 	} else if (turnDir == 7) {
-		move(robot, -turnSpeed, turnSpeed);
+		move(robot, turnSpeed, -turnSpeed);
 		if (turnTime > 15 && lineReading == 0) {
 			cout << "Done turning right, Going straight again" << endl;
 			// there is a path to the right

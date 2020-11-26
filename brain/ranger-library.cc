@@ -170,7 +170,6 @@ std::array<double, 5> read_all() {
   string sensorReading = read_serial();
   size_t pos = 0;
 	double token;
-  
   std::array<double, 5> sensorReadings;
 	int sensorCount = 0;
 	while ((pos = sensorReading.find(":")) != string::npos) {

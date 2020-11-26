@@ -26,7 +26,7 @@ RgRobot::~RgRobot()
 }
 
 std::array<double, 5> 
-RgRobot::read_all() {
+RgRobot::read_all_sensors() {
   return read_all();
 }
 
@@ -55,7 +55,7 @@ void
 RgRobot::do_stuff()
 {
     while (1) {
-        cout << "\n == iterate ==" << endl;
+        // cout << "\n == iterate ==" << endl;
         this->on_update(this);
     }
 }
