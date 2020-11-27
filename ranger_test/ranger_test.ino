@@ -1,6 +1,7 @@
 #include "MeAuriga.h"
 #include <SoftwareSerial.h>
 #include <Wire.h>
+#include <math.h>
 
 MeLightSensor light_sensor(2);
 MeSoundSensor sound_sensor(5);
@@ -8,31 +9,15 @@ MeGyro gyro_sensor(1, 0x69);
 MeTemperature temperature_sensor(PORT_13);
 MeUltrasonicSensor sonar_sensor(9);
 MeLineFollower line_sensor(10);
+MeLineFollower line_sensor_right(8);
 MeEncoderOnBoard right_motor(SLOT1);
 MeEncoderOnBoard left_motor(SLOT2);
 MeBuzzer buzzer;
 MeRGBLed led;
 
-int light = 0;
 
 char commandArray[64];
 char cmd_idx = 0;
-
-void poll_serial()
-{
-    while (Serial.available()) {
-        char cc = Serial.read();
-        if (cc == '\n') {
-            commandArray[cmd_idx] = 0;
-            return;
-        }
-        else {
-            commandArray[cmd_idx++] = cc;
-        }
-    }
-}
-
-int lights[1000];
 
 
 void setup()
@@ -41,266 +26,309 @@ void setup()
   gyro_sensor.begin();
   buzzer.setpin(45);
   led.setpin(44);
-  lights[0] = 32;
-  lights[1] = 32;
-  lights[2] = 32;
-  lights[3] = 32;
-  lights[4] = 32;
-
+  turnOffLights();
 }
 
-uint8_t run_command(String commandVerb, int argumentCount, String arguments[]) {
-  switch(argumentCount){
-    case 0:
-      if (commandVerb.equals("read_light")){
-         Serial.println(light_sensor.read());
-      } else if (commandVerb.equals("read_sound")){
-          Serial.println(sound_sensor.strength());
-      } else if (commandVerb.equals("read_gyro_x")){
-          Serial.println(gyro_sensor.getAngleX());
-      } else if(commandVerb.equals("read_gyro_y")){
-          Serial.println(gyro_sensor.getAngleY());
-      } else if(commandVerb.equals("read_gyro_z")){
-          Serial.println(gyro_sensor.getAngleZ());
-      } else if(commandVerb.equals("read_temperature")){
-          Serial.println(temperature_sensor.temperature());
-      } else if(commandVerb.equals("read_sonar")){
-          Serial.println(sonar_sensor.distanceCm());
-      } else if(commandVerb.equals("read_line")){
-//          buzzer.tone(1000, 100);
-          return line_sensor.readSensors();
-          Serial.println(line_sensor.readSensors());
-      } else if(commandVerb.equals("stop")){
-          right_motor.setMotorPwm(0);
-          left_motor.setMotorPwm(0);
-      } else if(commandVerb.equals("forward")){
-          right_motor.setMotorPwm(-200);
-          left_motor.setMotorPwm(200);
-      } else if(commandVerb.equals("left")){
-          right_motor.setMotorPwm(-200);
-          left_motor.setMotorPwm(-200);
-      } else if(commandVerb.equals("right")){
-          right_motor.setMotorPwm(200);
-          left_motor.setMotorPwm(200);
-      } else if(commandVerb.equals("backward")){
-          right_motor.setMotorPwm(200);
-          left_motor.setMotorPwm(-200);
-      } else if(commandVerb.equals("light_off")){
-          led.setColor(0, 0, 0, 0);
-          led.show();
-      }
-      
-      break;
-      
-    case 1:
-      if(commandVerb.equals("forward")){ 
-         int speed = arguments[0].toInt();
-         right_motor.setMotorPwm(-speed);
-         left_motor.setMotorPwm(speed);
-      } else if(commandVerb.equals("left")){
-         int speed = arguments[0].toInt();
-         right_motor.setMotorPwm(-speed);
-         left_motor.setMotorPwm(-speed);
-      } else if(commandVerb.equals("right")){
-         int speed = arguments[0].toInt();
-         right_motor.setMotorPwm(speed);
-         left_motor.setMotorPwm(speed);
-      } else if(commandVerb.equals("backward")){
-         int speed = arguments[0].toInt();
-         right_motor.setMotorPwm(speed);
-         left_motor.setMotorPwm(-speed);
-      } else if(commandVerb.equals("light_off")){
-         int index = arguments[0].toInt();
-         led.setColor(index, 0, 0, 0);
-         led.show();
-      }
-      
-      break;
-
-    case 2:
-      if (commandVerb.equals("sound")) {
-        int frequency = arguments[0].toInt();
-        int duration = arguments[1].toInt();
-        buzzer.tone(frequency, duration);
-      } else if (commandVerb.equals("tank_drive")){
-        int right = arguments[0].toInt();
-        int left = arguments[1].toInt();
-        Serial.println(arguments[0]);
-        Serial.println(arguments[1]);
-        right_motor.setMotorPwm(-right);
-        left_motor.setMotorPwm(left);
-      }
-
-      break;
-
-    case 3:
-      if (commandVerb.equals("light")){
-        int red = arguments[0].toInt();
-        int green = arguments[1].toInt();
-        int blue = arguments[2].toInt();
-        led.setColor(0, red, green, blue);
-        led.show();
-      }
-
-      break;
-
-    case 4:
-      if (commandVerb.equals("light")){
-        int index = arguments[0].toInt();
-        int red = arguments[1].toInt();
-        int green = arguments[2].toInt();
-        int blue = arguments[3].toInt();
-        led.setColor(index, red, green, blue);
-        led.show();
-      }
-
-      break;
-   }
-   return 0;
-}
+int currLeftMotorSpeed = -1;
+int currRightMotorSpeed = -1;
 
 void stopMoving() {
-   right_motor.setMotorPwm(0);
-   left_motor.setMotorPwm(0);
+   if (currLeftMotorSpeed != 0 || currRightMotorSpeed != 0) {
+       currLeftMotorSpeed = 0;
+       currRightMotorSpeed = 0;
+       right_motor.setMotorPwm(0);
+       left_motor.setMotorPwm(0);
+   }
 }
 
 void startMoving(int left, int right) {
-    right_motor.setMotorPwm(-right);
-    left_motor.setMotorPwm(left);
+    if (currLeftMotorSpeed != left || currRightMotorSpeed != right) {
+       currLeftMotorSpeed = left;
+       currRightMotorSpeed = right;
+       right_motor.setMotorPwm(-right);
+       left_motor.setMotorPwm(left);
+    }
+
 }
 
-void setLights(int r, int g, int b) {
-  led.setColor(0, r, g, b);
+void setLights(int x, int r, int g, int b) {
+  led.setColor(0,0,0,0);
+  led.setColor(x, r, g, b);
   led.show();
 }
 
 void turnOffLights() {
-  setLights(0,0,0);
+  setLights(0,0,0,0);
 }
 
 void playSound() {
   buzzer.tone(1000, 100);
 }
 
-int i = 0;
-int isLightOn = 0;
-int lightCount = 0;
-int soundThreshold = 240;
+double angleDiff(double angle1, double angle2) {
+	if (angle1 < 0) {
+		angle1 += 360;
+	}
+	if (angle2 < 0) {
+		angle2 += 360;
+	}
+
+    double diff = fmod(angle1 - angle2, 360);
+
+    if (diff < -180) {
+        diff += 360;
+    }
+
+    if (diff > 180) {
+        diff -= 360;
+    }
+
+    return diff;
+}
+
+// lineReadings
+double lineReadings[100];
+//lineReadings[0] = 0;
+//lineReadings[1] = 0;
+//lineReadings[2] = 0;
+//lineReadings[3] = 0;
+//lineReadings[4] = 0;
+
+// sonarReadings during spin
+double sonarReadings[500];
+double angleReadings[500];
+int sonar_i = 0;
+
+// spinning stuff
+double startSpinZ = 0;
+int spinTime = 0;
+
+// valid paths
+bool leftPath = false;
+bool rightPath = false;
+bool forwardPath = false;
+
+int turnTime = 0;
+
+int i = 5;
+// 0 = forward, 1 = left, 2 = right, 3 = prepare for intersection, 4 = start spin, 5 = stop, 6 = TURN left, 7 = TURN right, 8 = GO straight, 9 = AT GOAL.
+int turnDir = 0;
+
 void loop()
 {
-//  gyro_sensor.update();
-  int soundReading = sound_sensor.strength();
-  Serial.println(soundReading);
-  lights[i] = soundReading;
+  gyro_sensor.update();
+  double lineReading = line_sensor.readSensors();
+	double rightLineReading = line_sensor_right.readSensors();
+	double sonarReading = sonar_sensor.distanceCm();
+	double z_pos = gyro_sensor.getAngleZ(); 
 
-  // if lights are on initially
-  if (lights[i-5] < soundThreshold) {
-    Serial.println("LOOP");
-    int lightsOff = 0;
-    for (int f = i - 5; f <= i; f++) {
-      if (lights[f] >= soundThreshold) {
-        // if lights go off
-        lightsOff = 1;
-        Serial.println("lights off");
-      }
-      
-      if (lights[f] < soundThreshold && lightsOff == 1) {
-        // if lights go back on.
-        // execute command..
-        Serial.println("command");
-//        playSound();
-        setLights(255, 255, 0);
-//        startMoving(200, 200);
-        isLightOn = 1;
-        lightCount = 0;
-        lights[f] = 120;
-        lights[f-1] = 120;
-        lights[f-2] = 120;
-        lights[f-3] = 120;
-        lights[f-4] = 120;
-        lights[f-5] = 120;
-      }
-    }
-  }
+	int moveSpeed = 120;
+	int turnSpeed = 150;
+	lineReadings[i] = lineReading;
+	
+	if (turnDir == 0) {
+    setLights(1,255,0,0);
+		if (sonarReading < 7) {
+      Serial.println("WE FOUND THE GOAL");
+			stopMoving();
+			turnDir = 9;
+		}
+		if (lineReading == 0 && rightLineReading != 0) {
+			// cout << "Move!" << endl;
+			startMoving(moveSpeed, moveSpeed);
+		} else if (rightLineReading == 0) {
+			// we are at intersection
+      Serial.println("INTERSECTION");
+			turnDir = 3;
+			spinTime = 0;
+			startSpinZ = z_pos;
+		} else if (lineReading == 1) {
+			// turn left
+			turnDir = 1;
+		} else if (lineReading == 2) {
+			// turn right
+			turnDir = 2;
+		} else {
+			if (i > 5) {
+				if (lineReadings[i-1] == 1 || lineReadings[i-2] == 1 || lineReadings[i-3] == 1 || lineReadings[i-4] == 1 || lineReadings[i-5] == 1) {
+					turnDir = 2;
+				} else if (lineReadings[i-1] == 2 || lineReadings[i-2] == 2 || lineReadings[i-3] == 2 || lineReadings[i-4] == 2 || lineReadings[i-5] == 2) {
+					turnDir = 1;
+				} else {
+					stopMoving();
+				}
+			} else {
+				stopMoving();
+			}
+		}
+	} else if (turnDir == 1) {
+		// turning left
+    setLights(2,255,0,0);
+		startMoving(0, turnSpeed);
+		if (lineReading == 0) {
+			turnDir = 0;
+		}
+	} else if (turnDir == 2) {
+		// turning right
+    setLights(2,0,0,255);
+		startMoving(turnSpeed, 0);
+		if (lineReading == 0) {
+			turnDir = 0;
+		}
+	} else if (turnDir == 3) {
+		// at intersection, preparing for spin.
+		setLights(3,255,255,255);
+		startMoving(80, 80);
+		if (rightLineReading == 3) {
+      Serial.println("Starting spin...");
+			turnDir = 4;
+		}
+	} else if (turnDir == 4) {
+		// spinning
+    setLights(4,255,255,255);
+		startMoving(-turnSpeed, turnSpeed);
+		spinTime += 1;
+//    Serial.println(abs(angleDiff(startSpinZ, z_pos)));
+		if (abs(angleDiff(startSpinZ, z_pos)) < 15 && spinTime >= 15) {
+      Serial.println("Done spinning, evaluating options..");
+			turnDir = 5;
+		}
+		if (abs(angleDiff(startSpinZ + 90, z_pos)) < 15 && lineReading == 0) {
+			// there is a path to the right
+			// cout << "RIGHT " << to_string(abs(angleDiff(startSpinZ + 90, z_pos))) << endl;
+			rightPath = true;
+		}
+		if (abs(angleDiff(startSpinZ, z_pos)) < 15 && lineReading == 0) {
+			// there is a path continuing forward
+			// cout << "FORWARD " << to_string(abs(angleDiff(startSpinZ, z_pos))) << endl;
+			forwardPath = true;
+		}
+		if (abs(angleDiff(startSpinZ + 270, z_pos)) < 15 && lineReading == 0) {
+			// there is a path to the left
+			// cout << "LEFT " << to_string(abs(angleDiff(startSpinZ + 270, z_pos))) << endl;
+			leftPath = true;
+		}
 
-  if (isLightOn == 1) {
-    if (lightCount > 20) {
-      isLightOn = 0;
-      lightCount = 0;
-      turnOffLights();
-//      stopMoving();
-    }
-    lightCount += 1;
-  }
-  if (i == 980) {
-    i = 0;
-  } else {
-    i = i + 1;
-  }
-  delay(100);
-}
+		sonarReadings[sonar_i] = sonarReading;
+		angleReadings[sonar_i] = z_pos;
+		sonar_i += 1;
+	} else if (turnDir == 5) {
+    setLights(5,255,255,255);
+		stopMoving();
+		double sonarDiffs[sonar_i-1];
+		double maxDiff = 0;
+		int maxDiffIndex = 0;
+		// calculate diffs and get largest diff
+		for (int ii = 0; ii < sonar_i-1; ii++) {
+			sonarDiffs[ii] = abs(sonarReadings[ii] - sonarReadings[ii+1]);
+			if (sonarDiffs[ii] > maxDiff) {
+				maxDiff = sonarDiffs[ii];
+				maxDiffIndex = ii;
+			}
+		}
+		sonarDiffs[maxDiffIndex] = 0;
+		double secondMaxDiff = 0;
+		int secondMaxDiffIndex = 0;
+		// get second largest diff
+		for (int ii = 0; ii < sonar_i-1; ii++) {
+			if (sonarDiffs[ii] > secondMaxDiff) {
+				secondMaxDiff = sonarDiffs[ii];
+				secondMaxDiffIndex = ii;
+			}
+		}
+		double goal_angle = 0;
+		if (maxDiffIndex < secondMaxDiffIndex) {
+			// if first max comes before second max.
+			goal_angle = angleReadings[maxDiffIndex+1];
+		} else {
+			// if second max comes before first max.
+			goal_angle = angleReadings[secondMaxDiffIndex+1];
+		}
+		// example
+		// 21, 23, 24, 50, 51, 50, 28,
+		// 02, 01, 26, 01, 01, 22.
+		//  0   1   2   3   4   5   6 
 
-void lightCommands() {
-  int lightReading = light_sensor.read();
-  Serial.println(lightReading);
-  lights[i] = lightReading;
 
-  // if lights are on initially
-  Serial.println(i);
-  if (lights[i-5] > 5) {
-    Serial.println("LOOP");
-    int lightsOff = 0;
-    for (int f = i - 5; f <= i; f++) {
-      if (lights[f] < 5) {
-        // if lights go off
-        lightsOff = 1;
-      }
-    
-      if (lights[f] > 5 && lightsOff == 1) {
-        // if lights go back on.
-        // execute command..
-        playSound();
-        lights[f] = 32;
-        lights[f-1] = 32;
-        lights[f-2] = 32;
-        lights[f-3] = 32;
-        lights[f-4] = 32;
-        lights[f-5] = 32;
-      }
-    }
-  }
-  if (i == 980) {
-    i = 0;
-  } else {
-    i = i + 1;
-  }
-  delay(200);
-}
+		// calculate angle between goal and each available turn.
+		
+		double rightDiff = abs(angleDiff(goal_angle, startSpinZ + 90));
+		double leftDiff = abs(angleDiff(goal_angle, startSpinZ + 270));
+		double forwardDiff = abs(angleDiff(goal_angle, startSpinZ));
 
-void lightReacting() {
-  int lightReading = light_sensor.read();
-  Serial.println(lightReading);
-  if (lightReading < 5 || lightReading > 600) {
-    // light up
-    // r, g , b
-    setLights(0, 255, 255);
-  } else {
-    // turn off lights
-    turnOffLights();
-  }
-  delay(200);
-}
+		if (!rightPath) {
+			rightDiff = 1000000;
+		}
+		if (!leftPath) {
+			leftDiff = 1000000;
+		}
+		if (!forwardPath) {
+			forwardDiff = 1000000;
+		}
 
-void lineFollowing() {
-  int lineReading = line_sensor.readSensors();
-  if (lineReading == 0) {
-    startMoving(120, 120);
-  } else if (lineReading == 1) {
-    startMoving(60, 120);
-  } else if (lineReading == 2) {
-    startMoving(120, 60);
-  } else {
-    stopMoving();
-  }
-  delay(200);
+		if (rightDiff < leftDiff && rightDiff < forwardDiff) {
+     Serial.println("Turning right");
+			// turn right
+			turnDir = 7;
+			turnTime = 0;
+			bool leftPath = false;
+			bool rightPath = false;
+			bool forwardPath = false;
+		} else if (leftDiff < rightDiff && leftDiff < forwardDiff) {
+      Serial.println("Turning left");
+			// turn left
+			turnDir = 6;
+			turnTime = 0;
+			bool leftPath = false;
+			bool rightPath = false;
+			bool forwardPath = false;	
+		} else if (forwardDiff < rightDiff && forwardDiff < leftDiff) {
+      Serial.println("Heading straight");
+			// go straight
+			turnDir = 0;
+			turnTime = 0;
+			bool leftPath = false;
+			bool rightPath = false;
+			bool forwardPath = false;
+		}
+		sonar_i = 0;
+	} else if (turnDir == 6) {
+    setLights(6,255,0,0);
+		startMoving(-turnSpeed, turnSpeed);
+		if (turnTime > 15 && lineReading == 0) {
+      Serial.println("Done turning left, Going straight again");
+			// there is a path to the left
+			turnDir = 0;
+		}
+		turnTime += 1;
+	} else if (turnDir == 7) {
+    setLights(6,0,255,0);
+		startMoving(turnSpeed, -turnSpeed);
+		if (turnTime > 15 && lineReading == 0) {
+      Serial.println("Done turning right, Going straight again");
+			// there is a path to the right
+			turnDir = 0;
+		}
+		turnTime += 1;
+	} else if (turnDir == 8) {
+    setLights(6,0,0,255);
+		startMoving(turnSpeed, turnSpeed);
+		if (turnTime > 15) {
+      Serial.println("Past intersection, continuing to go straight");
+			turnDir = 15;
+		}
+		turnTime += 1;
+	} else if (turnDir == 9) {
+    setLights(0,0,255,0);
+		stopMoving();
+		// do something celebratory??
+		// BREAK();
+	}
+
+	if (i >= 95) {
+		i = 5;
+	} else {
+		i += 1;
+	}
+  delay(50);
 }
