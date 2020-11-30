@@ -12,5 +12,8 @@ You can view our sample maze created using the maze builder in `/worlds`.
 ## Steps
 1. Open up an empty/pre-existing world in the Gazebo environment with `world.sh`.
 2. Navigate to the Insert tab at the top-left corner.
+![image1](https://github.com/neelchoudhary/RoboticsFinalProject/blob/ec/images/image1.png)
 3. Select a model underneath `$PATH/models` and drag to the Gazebo environment.
+![image2](https://github.com/neelchoudhary/RoboticsFinalProject/blob/ec/images/image2.png)
 4. Save the world by going to `File >> Save World As` and overwriting the world environment.
+![image3](https://github.com/neelchoudhary/RoboticsFinalProject/blob/ec/images/image3.png)
