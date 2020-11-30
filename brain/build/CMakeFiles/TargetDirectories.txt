@@ -1,3 +1,0 @@
-/home/neelc/RoboticsFinalProject/brain/build/CMakeFiles/rebuild_cache.dir
-/home/neelc/RoboticsFinalProject/brain/build/CMakeFiles/edit_cache.dir
-/home/neelc/RoboticsFinalProject/brain/build/CMakeFiles/brain.dir

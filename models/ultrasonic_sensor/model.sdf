@@ -48,7 +48,6 @@
         <update_rate>30</update_rate>
         <visualize>true</visualize>
       </sensor>
-
     </link>
   </model>
 </sdf>

@@ -1,3 +1,0 @@
-/home/neelc/RoboticsFinalProject/plugins/microphone_control/build/CMakeFiles/rebuild_cache.dir
-/home/neelc/RoboticsFinalProject/plugins/microphone_control/build/CMakeFiles/edit_cache.dir
-/home/neelc/RoboticsFinalProject/plugins/microphone_control/build/CMakeFiles/microphone_control_plugin.dir
