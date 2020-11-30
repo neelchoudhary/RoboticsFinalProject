@@ -1,7 +1,0 @@
-#!/bin/bash
-
-git pull
-cd ranger_serial_firmware
-make
-cd ..
-./run
