@@ -10,17 +10,17 @@
 using namespace std;
 
 
-// // Add an angle in the clockwise direction.
-// double angleAdd(double currAngle, double additionAngle) {
-// 	if (newAngle > 180) {
-// 		newAngle = newAngle - 360;
-// 	}
-// 	if (currAngle <= -180) {
-// 		currAngle = currAngle + 360;
-// 	}
-// 	double newAngle = (currAngle + additionAngle) % 360;
-// 	return newAngle;
-// }
+// Add an angle in the clockwise direction.
+double angleAdd(double currAngle, double additionAngle, double newAngle) {
+	if (newAngle > 180) {
+		newAngle = newAngle - 360;
+	}
+	if (currAngle <= -180) {
+		currAngle = currAngle + 360;
+	}
+	double newAngle = (currAngle + additionAngle) % 360;
+	return newAngle;
+}
 
 double angleDiff(double angle1, double angle2) {
 	if (angle1 < 0) {
@@ -201,14 +201,12 @@ int main(int argc, char* argv[]) {
 				// if second max comes before first max.
 				goal_angle = angleReadings[secondMaxDiffIndex+1];
 			}
+			
 			// example
 			// 21, 23, 24, 50, 51, 50, 28,
 			// 02, 01, 26, 01, 01, 22.
 			//  0   1   2   3   4   5   6 
-
-
 			// calculate angle between goal and each available turn.
-			
 			double rightDiff = abs(angleDiff(goal_angle, startSpinZ + 90));
 			double leftDiff = abs(angleDiff(goal_angle, startSpinZ + 270));
 			double forwardDiff = abs(angleDiff(goal_angle, startSpinZ));

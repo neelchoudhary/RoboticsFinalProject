@@ -1,0 +1,42 @@
+Project Information
+
+1. What are the names of all members of your team?
+Nicole Danuwidjaja, Neel Choudhary
+
+2. In no more than three sentences, what was your project?
+Our project was to write a control program that would solve a maze using the line following and sonar sensors. Our goal was to have the robot move autonomously through the maze using only the line following sensor and the ultrasonic sonar sensor to guide it in its decision-making process to take the optimal path at every decision. In designing this maze, we found it necessary to ensure that we properly tested if cycles were successfully avoided, as well as being able to fully utilize each of the sensors' functionalities within the control program code.
+
+3. What did each team member do to contribute to the project?
+As a duo, we worked together on conceptualizing the project and working on parts together. We each purchased an mBot Ranger for testing purposes and constructed/researched the robot. 
+
+In addition, we each had parts that we focused on:
+Neel - designing the control program, connecting firmware, setting up serial communication
+Nicole - research for features (that we ended up not implementing due to constraints), designing and building the physical and digital mazes, porting code to Arduino, presentation
+
+4. What is the URL of your git repository with all your project code and your
+presentation notes / slides?
+https://github.com/neelchoudhary/RoboticsFinalProject
+
+5. Which component do you think was the most innately difficult to build?
+Aside from the physical maze itself, which was definitely a tedious part of this project, (took in total over 4 hours to purchase materials and fully assembly the course!) the most difficult component was to code a functional line following control program that would be robust enough to successfully work for edge cases and other maze variants. Doing this successfully required thorough research on the mBot hardware and its subsystems, as well as being able to work with the limited sensors and materials (e.g. very short battery life resulted in a fraction of the desired testing time)
+
+6. What's the URL to your Demo video?
+https://www.youtube.com/watch?v=T3vX5VWH5Pk
+
+7. What's the URL to your Presentation video?
+https://bit.ly/tuck-robotics-final-fall-2020
+
+8. Did you share any generally useful example code with other teams to try for
+a bonus point? If so, what's the Git repo and Piazza post URLs?
+1. Establishing two-way communication using Master-Slave Communication
+https://piazza.com/class/kcnltmm0pvf6l?cid=143
+https://github.com/nicoledanuwidjaja/robot-see-robot-do/tree/comms/
+
+2. Maze Builder Tutorial/Setup
+https://piazza.com/class/kcnltmm0pvf6l?cid=144
+https://github.com/neelchoudhary/RoboticsFinalProject/tree/ec
+
+3. Ranger Sound-Driven Command Pattern Sketch
+https://piazza.com/class/kcnltmm0pvf6l?cid=149
+https://github.com/neelchoudhary/RoboticsFinalProject/tree/ec2/
+

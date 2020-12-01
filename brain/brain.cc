@@ -93,34 +93,24 @@ int iterations = 0;
 void
 callback(Robot* robot)
 {
-	// if (iterations < 5) {
-	// 	iterations += 1;
-	// 	return;
-	// }
-	// iterations += 1;
-
     // cout << robot->get_line_status() << endl;
-    //
     // cout << robot->get_noise_sensor() << endl;
 
-    // double lineSensor = robot->get_line_status();
-    // double lineSensor2 = robot->get_line_status2();
-    // cout << "LS1: " << std::to_string(lineSensor) << endl;
-    // cout << "LS2: " << std::to_string(lineSensor2) << endl;
-    // robot->set_vel(1, 1);
+    double lineSensor = robot->get_line_status();
+    double lineSensor2 = robot->get_line_status2();
+    cout << "LS1: " << std::to_string(lineSensor) << endl;
+    cout << "LS2: " << std::to_string(lineSensor2) << endl;
 
-    // sleep(1);
 	std::array<double, 5> sensorReadings = robot->read_all_sensors();
 	double lineReading = sensorReadings[0];
 	double rightLineReading = sensorReadings[1];
 	double sonarReading = sensorReadings[2];
-	// double sonarReading = 400; // temp until we figure out gazebo sonar
 	double z_pos = sensorReadings[3];
+	
 	// cout << "Line Sensor: " + to_string(lineReading) << endl;
 	// cout << "Right sensor: " + to_string(rightLineReading) << endl;
 	// cout << "Sonar sensor: " + to_string(sonarReading) << endl;
 	// cout << "z sensor: " + to_string(z_pos) << endl;
-
 
 	int moveSpeed = 120;
 	int turnSpeed = 150;

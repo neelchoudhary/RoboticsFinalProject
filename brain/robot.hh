@@ -5,7 +5,6 @@
 #include <gazebo/transport/transport.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/gazebo_client.hh>
-
 #include <opencv2/core/mat.hpp>
 
 class Robot {
