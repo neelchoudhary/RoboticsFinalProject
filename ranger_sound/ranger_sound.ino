@@ -1,3 +1,4 @@
+/* Sketch for processing sound and responding with light commands. */
 #include "MeAuriga.h"
 #include <SoftwareSerial.h>
 #include <Wire.h>
@@ -14,43 +15,33 @@ MeBuzzer buzzer;
 MeRGBLed led;
 
 int light = 0;
-
+int lights[1000];
 char commandArray[64];
 char cmd_idx = 0;
+int i = 0;
+int isLightOn = 0;
+int lightCount = 0;
+int soundThreshold = 240;
 
+
+/* Read serial for processing commands. */
 void poll_serial()
 {
-    while (Serial.available()) {
-        char cc = Serial.read();
-        if (cc == '\n') {
-            commandArray[cmd_idx] = 0;
-            return;
-        }
-        else {
-            commandArray[cmd_idx++] = cc;
-        }
-    }
+  while (Serial.available()) {
+      char cc = Serial.read();
+      if (cc == '\n') {
+          commandArray[cmd_idx] = 0;
+          return;
+      }
+      else {
+          commandArray[cmd_idx++] = cc;
+      }
+  }
 }
 
-int lights[1000];
-
-
-void setup()
-{
-  Serial.begin(9600);
-  gyro_sensor.begin();
-  buzzer.setpin(45);
-  led.setpin(44);
-  lights[0] = 32;
-  lights[1] = 32;
-  lights[2] = 32;
-  lights[3] = 32;
-  lights[4] = 32;
-
-}
-
+/* Command pattern for processing different actions depending on the argument command processed. */
 uint8_t run_command(String commandVerb, int argumentCount, String arguments[]) {
-  switch(argumentCount){
+  switch (argumentCount) {
     case 0:
       if (commandVerb.equals("read_light")){
          Serial.println(light_sensor.read());
@@ -67,7 +58,7 @@ uint8_t run_command(String commandVerb, int argumentCount, String arguments[]) {
       } else if(commandVerb.equals("read_sonar")){
           Serial.println(sonar_sensor.distanceCm());
       } else if(commandVerb.equals("read_line")){
-//          buzzer.tone(1000, 100);
+          playSound();
           return line_sensor.readSensors();
           Serial.println(line_sensor.readSensors());
       } else if(commandVerb.equals("stop")){
@@ -89,7 +80,6 @@ uint8_t run_command(String commandVerb, int argumentCount, String arguments[]) {
           led.setColor(0, 0, 0, 0);
           led.show();
       }
-      
       break;
       
     case 1:
@@ -114,7 +104,6 @@ uint8_t run_command(String commandVerb, int argumentCount, String arguments[]) {
          led.setColor(index, 0, 0, 0);
          led.show();
       }
-      
       break;
 
     case 2:
@@ -130,7 +119,6 @@ uint8_t run_command(String commandVerb, int argumentCount, String arguments[]) {
         right_motor.setMotorPwm(-right);
         left_motor.setMotorPwm(left);
       }
-
       break;
 
     case 3:
@@ -141,7 +129,6 @@ uint8_t run_command(String commandVerb, int argumentCount, String arguments[]) {
         led.setColor(0, red, green, blue);
         led.show();
       }
-
       break;
 
     case 4:
@@ -182,12 +169,19 @@ void playSound() {
   buzzer.tone(1000, 100);
 }
 
-int i = 0;
-int isLightOn = 0;
-int lightCount = 0;
-int soundThreshold = 240;
-void loop()
-{
+void setup(){
+  Serial.begin(9600);
+  gyro_sensor.begin();
+  buzzer.setpin(45);
+  led.setpin(44);
+  lights[0] = 32;
+  lights[1] = 32;
+  lights[2] = 32;
+  lights[3] = 32;
+  lights[4] = 32;
+}
+
+void loop() {
 //  gyro_sensor.update();
   int soundReading = sound_sensor.strength();
   Serial.println(soundReading);
@@ -208,9 +202,9 @@ void loop()
         // if lights go back on.
         // execute command..
         Serial.println("command");
-//        playSound();
+        playSound();
         setLights(255, 255, 0);
-//        startMoving(200, 200);
+        // startMoving(200, 200);
         isLightOn = 1;
         lightCount = 0;
         lights[f] = 120;
@@ -228,7 +222,7 @@ void loop()
       isLightOn = 0;
       lightCount = 0;
       turnOffLights();
-//      stopMoving();
+      // stopMoving();
     }
     lightCount += 1;
   }
@@ -257,8 +251,7 @@ void lightCommands() {
       }
     
       if (lights[f] > 5 && lightsOff == 1) {
-        // if lights go back on.
-        // execute command..
+        // if lights go back on, execute command.
         playSound();
         lights[f] = 32;
         lights[f-1] = 32;
@@ -281,11 +274,9 @@ void lightReacting() {
   int lightReading = light_sensor.read();
   Serial.println(lightReading);
   if (lightReading < 5 || lightReading > 600) {
-    // light up
-    // r, g , b
+    // light up (r, g, b)
     setLights(0, 255, 255);
   } else {
-    // turn off lights
     turnOffLights();
   }
   delay(200);
